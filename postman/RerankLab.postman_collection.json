@@ -1,0 +1,62 @@
+{
+  "info": {
+    "name": "RerankLab",
+    "description": "GraphQL collection for the RerankLab second-stage reranking + offline evaluation service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8080" }
+  ],
+  "item": [
+    {
+      "name": "Health - Ready",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/health/ready", "host": ["{{baseUrl}}"], "path": ["health", "ready"] }
+      }
+    },
+    {
+      "name": "Metrics",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/metrics", "host": ["{{baseUrl}}"], "path": ["metrics"] }
+      }
+    },
+    {
+      "name": "GraphQL - API Version",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/graphql", "host": ["{{baseUrl}}"], "path": ["graphql"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\":\"{ apiVersion }\"}"
+        }
+      }
+    },
+    {
+      "name": "GraphQL - Rerank",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/graphql", "host": ["{{baseUrl}}"], "path": ["graphql"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\":\"mutation($q: String!, $c: [CandidateInput!]!) { rerank(queryId: 1, queryText: $q, candidates: $c) { reranker ranked { id score retrievalScore } } }\",\"variables\":{\"q\":\"rust async runtime\",\"c\":[{\"id\":10,\"text\":\"python threading guide overview\",\"retrievalScore\":0.9},{\"id\":11,\"text\":\"rust async runtime tokio scheduler\",\"retrievalScore\":0.1}]}}"
+        }
+      }
+    },
+    {
+      "name": "GraphQL - Evaluate (seeded query)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/graphql", "host": ["{{baseUrl}}"], "path": ["graphql"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\":\"query($q: String!) { evaluate(queryId: 0, queryText: $q, k: 10) { k ndcg mrr recall precision map } }\",\"variables\":{\"q\":\"rust async runtime\"}}"
+        }
+      }
+    }
+  ]
+}

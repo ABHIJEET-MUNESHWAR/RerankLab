@@ -1,0 +1,21 @@
+[package]
+name = "reranklab-api"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "GraphQL API for RerankLab: rerank mutations, evaluation queries, and live event subscriptions."
+
+[dependencies]
+reranklab-types = { workspace = true }
+reranklab-core = { workspace = true }
+reranklab-infra = { workspace = true }
+reranklab-resilience = { workspace = true }
+async-graphql = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+serde = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }

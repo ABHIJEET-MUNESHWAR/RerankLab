@@ -1,0 +1,21 @@
+[package]
+name = "reranklab-infra"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "In-memory adapters for RerankLab: candidate/judgment stores, event bus, corpus generator."
+
+[dependencies]
+reranklab-types = { workspace = true }
+reranklab-core = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+tokio-stream = { workspace = true }
+futures = { workspace = true }
+dashmap = { workspace = true }
+parking_lot = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }

@@ -1,0 +1,23 @@
+[package]
+name = "reranklab-ai"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Generative-AI reranker for RerankLab with resilient HTTP calls and a deterministic heuristic fallback."
+
+[dependencies]
+reranklab-types = { workspace = true }
+reranklab-core = { workspace = true }
+reranklab-resilience = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+metrics = { workspace = true }
+reqwest = { workspace = true }
+tokio = { workspace = true, features = ["time"] }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
