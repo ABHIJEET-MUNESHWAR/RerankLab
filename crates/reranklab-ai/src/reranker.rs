@@ -84,9 +84,12 @@ impl AiReranker {
 
     /// Parses the model's reply into `(DocId, score)` pairs, keeping only ids
     /// that were actually offered as candidates.
-    fn parse_scores(reply: &str, candidates: &[Candidate]) -> Result<Vec<ScoredCandidate>, AiError> {
-        let items: Vec<ScoreItem> = serde_json::from_str(reply.trim())
-            .map_err(|e| AiError::Parse(e.to_string()))?;
+    fn parse_scores(
+        reply: &str,
+        candidates: &[Candidate],
+    ) -> Result<Vec<ScoredCandidate>, AiError> {
+        let items: Vec<ScoreItem> =
+            serde_json::from_str(reply.trim()).map_err(|e| AiError::Parse(e.to_string()))?;
 
         let retrieval: std::collections::HashMap<u64, f32> = candidates
             .iter()
@@ -116,16 +119,12 @@ impl AiReranker {
     ) -> Result<RankedList, AiError> {
         let prompt = Self::build_prompt(query, candidates);
 
-        let reply = retry_if(
-            self.retry,
-            AiError::is_retryable,
-            || async {
-                match with_timeout(self.timeout, self.model.complete(&prompt)).await {
-                    Ok(r) => r,
-                    Err(_) => Err(AiError::Timeout),
-                }
-            },
-        )
+        let reply = retry_if(self.retry, AiError::is_retryable, || async {
+            match with_timeout(self.timeout, self.model.complete(&prompt)).await {
+                Ok(r) => r,
+                Err(_) => Err(AiError::Timeout),
+            }
+        })
         .await?;
 
         let scored = Self::parse_scores(&reply, candidates)?;
@@ -150,8 +149,7 @@ impl Reranker for AiReranker {
             }
             Err(e) => {
                 // Graceful degradation: never fail the request, fall back.
-                metrics::counter!("reranklab_ai_fallback_total", "reason" => e.code())
-                    .increment(1);
+                metrics::counter!("reranklab_ai_fallback_total", "reason" => e.code()).increment(1);
                 tracing::warn!(error = %e, "ai reranker failed; using heuristic fallback");
                 self.fallback.rerank(query, candidates).await
             }
@@ -234,12 +232,11 @@ mod tests {
             calls: AtomicU32::new(0),
             err: || AiError::Transport("down".into()),
         });
-        let rr = AiReranker::new(model.clone())
-            .with_retry(RetryPolicy {
-                max_attempts: 2,
-                base_delay: Duration::from_millis(1),
-                max_delay: Duration::from_millis(1),
-            });
+        let rr = AiReranker::new(model.clone()).with_retry(RetryPolicy {
+            max_attempts: 2,
+            base_delay: Duration::from_millis(1),
+            max_delay: Duration::from_millis(1),
+        });
         let out = rr.rerank(&query(), &candidates()).await.unwrap();
         assert_eq!(out.len(), 2);
         // Retried the configured number of attempts before giving up.
